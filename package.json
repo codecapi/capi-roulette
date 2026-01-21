@@ -1,0 +1,21 @@
+{
+  "name": "capi-roulette",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
+    "dev:server": "bun --watch server/src/index.ts",
+    "dev:client": "cd client && bun run dev",
+    "build": "cd client && bun run build",
+    "start": "NODE_ENV=production bun server/src/index.ts",
+    "test": "bun test",
+    "test:e2e": "cd client && bun run test"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.4.0"
+  }
+}

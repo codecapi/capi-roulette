@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(.specify/scripts/bash/setup-plan.sh:*)",
+      "WebSearch",
+      "Bash(.specify/scripts/bash/update-agent-context.sh:*)",
+      "Bash(bun install:*)",
+      "Bash(bunx sv create:*)",
+      "Bash(bun test:*)",
+      "Bash(bun run check:*)",
+      "Bash(bun run build:*)",
+      "Bash(timeout 5 bun run start:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(echo \"No matching local branches\" ls -d specs/[0-9]*-display-dealer)",
+      "Bash(bun run typecheck:*)",
+      "Bash(bunx tsc:*)",
+      "WebFetch(domain:codepen.io)",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(ls:*)",
+      "Bash(git rev-parse:*)",
+      "WebFetch(domain:gist.githubusercontent.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx svelte-check:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

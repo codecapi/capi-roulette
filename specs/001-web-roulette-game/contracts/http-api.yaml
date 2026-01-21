@@ -1,0 +1,343 @@
+openapi: 3.1.0
+info:
+  title: Roulette Game HTTP API
+  version: 1.0.0
+  description: HTTP endpoints for the web-based roulette game
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /api/session:
+    post:
+      summary: Create new game session
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dealerPassword
+              properties:
+                dealerPassword:
+                  type: string
+                  minLength: 4
+                  description: Password for dealer authentication
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          description: Invalid password
+
+    get:
+      summary: Get current session status
+      operationId: getSession
+      responses:
+        '200':
+          description: Current session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '404':
+          description: No active session
+
+  /api/session/end:
+    post:
+      summary: End current session
+      operationId: endSession
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Session ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '401':
+          description: Unauthorized
+        '404':
+          description: No active session
+
+  /api/dealer/auth:
+    post:
+      summary: Authenticate as dealer
+      operationId: dealerAuth
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                  sessionId:
+                    type: string
+        '401':
+          description: Invalid credentials
+
+  /api/players:
+    get:
+      summary: List all players in session
+      operationId: listPlayers
+      security:
+        - basicAuth: []
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [number, name, spendings, earnings]
+            default: number
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Player list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+        '401':
+          description: Unauthorized
+
+  /api/players/join:
+    post:
+      summary: Join session as player
+      operationId: joinAsPlayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - startingBalance
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                startingBalance:
+                  type: integer
+                  minimum: 1
+                  maximum: 500
+      responses:
+        '201':
+          description: Player joined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '400':
+          description: Invalid input
+        '409':
+          description: Username already taken
+
+  /api/players/{playerId}:
+    get:
+      summary: Get player details
+      operationId: getPlayer
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '404':
+          description: Player not found
+
+  /api/players/reconnect:
+    post:
+      summary: Reconnect as existing player
+      operationId: reconnectPlayer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+      responses:
+        '200':
+          description: Reconnected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '404':
+          description: Player not found
+
+  /api/backup:
+    post:
+      summary: Trigger manual backup
+      operationId: triggerBackup
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Backup created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filename:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Download latest backup
+      operationId: getBackup
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Backup file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupFile'
+        '401':
+          description: Unauthorized
+        '404':
+          description: No backup available
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Auth with dealer password
+
+  schemas:
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [active, ended]
+        playerCount:
+          type: integer
+        roundCount:
+          type: integer
+
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        playerNumber:
+          type: integer
+        initialBalance:
+          type: integer
+        currentBalance:
+          type: integer
+        totalSpent:
+          type: integer
+        totalEarnings:
+          type: integer
+        status:
+          type: string
+          enum: [active, disconnected]
+        joinedAt:
+          type: string
+          format: date-time
+
+    BackupFile:
+      type: object
+      properties:
+        session:
+          $ref: '#/components/schemas/Session'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+        rounds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Round'
+
+    Round:
+      type: object
+      properties:
+        roundNumber:
+          type: integer
+        winningNumber:
+          type: integer
+          minimum: 0
+          maximum: 36
+        winningColor:
+          type: string
+          enum: [red, black, green]
+        timestamp:
+          type: string
+          format: date-time
+        bets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bet'
+
+    Bet:
+      type: object
+      properties:
+        playerId:
+          type: string
+          format: uuid
+        betType:
+          type: string
+          enum: [straight, red, black, odd, even, low, high, dozen, column]
+        position:
+          type: string
+        amount:
+          type: integer
+          enum: [1, 5, 10, 25, 50]
+        payout:
+          type: integer

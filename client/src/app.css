@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Custom base styles */
+:root {
+	--roulette-red: #dc2626;
+	--roulette-black: #1f2937;
+	--roulette-green: #16a34a;
+	--felt-green: #0d5c2e;
+}
+
+body {
+	font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Utility classes for roulette colors */
+.bg-roulette-red {
+	background-color: var(--roulette-red);
+}
+
+.bg-roulette-black {
+	background-color: var(--roulette-black);
+}
+
+.bg-roulette-green {
+	background-color: var(--roulette-green);
+}
+
+.bg-felt-green {
+	background-color: var(--felt-green);
+}
+
+.text-roulette-red {
+	color: var(--roulette-red);
+}
+
+.text-roulette-black {
+	color: var(--roulette-black);
+}
+
+.text-roulette-green {
+	color: var(--roulette-green);
+}
