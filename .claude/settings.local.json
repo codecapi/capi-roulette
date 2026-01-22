@@ -25,7 +25,12 @@
       "WebFetch(domain:gist.githubusercontent.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npx svelte-check:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(echo:*)",
+      "Bash(bun build:*)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { websocket } from '$lib/services/websocket';
+	import { AudioService } from '$lib/services/audio';
 	import {
 		gameState,
 		roundResult,
@@ -20,9 +21,43 @@
 	let overrideNumber = $state<number | null>(null);
 	let spinDuration = $state(9000); // Default 9 seconds
 
+	// Audio state
+	let audioService: AudioService | null = null;
+	let audioUnlocked = $state(false);
+	let audioLoading = $state(false);
+
 	function getNumberColor(num: number): 'red' | 'black' | 'green' {
 		if (num === 0) return 'green';
 		return RED_NUMBERS.includes(num) ? 'red' : 'black';
+	}
+
+	async function unlockAudio() {
+		if (audioUnlocked || audioLoading) return;
+
+		audioLoading = true;
+		try {
+			audioService = new AudioService('/audio/roulette', true);
+			await audioService.unlock();
+			await audioService.preload();
+			audioUnlocked = true;
+		} catch (error) {
+			console.error('Failed to initialize audio:', error);
+		} finally {
+			audioLoading = false;
+		}
+	}
+
+	// Audio callbacks for wheel component
+	function handleSpinStart(duration: number) {
+		audioService?.playBallAudio(duration);
+	}
+
+	function handleNoMoreBets() {
+		audioService?.playNoMoreBets();
+	}
+
+	function handleResultRevealed(winningNumber: number) {
+		audioService?.announceResult(winningNumber);
 	}
 
 	function handleSpinComplete(result: number) {
@@ -66,6 +101,7 @@
 		unsubSpin?.();
 		unsubReset?.();
 		cleanup?.();
+		audioService?.dispose();
 		websocket.disconnect();
 		resetStores();
 	});
@@ -78,6 +114,25 @@
 </svelte:head>
 
 <div class="display-page min-h-screen bg-gradient-to-b from-gray-900 via-green-950 to-gray-900 text-white flex flex-col items-center justify-center p-8">
+	<!-- Audio Unlock Overlay -->
+	{#if connected && !audioUnlocked && !$sessionEnded.ended}
+		<div class="audio-unlock-overlay">
+			<button
+				class="audio-unlock-btn"
+				onclick={unlockAudio}
+				disabled={audioLoading}
+			>
+				{#if audioLoading}
+					<span class="loading-spinner"></span>
+					Loading Audio...
+				{:else}
+					<span class="sound-icon">🔊</span>
+					Click to Enable Audio
+				{/if}
+			</button>
+		</div>
+	{/if}
+
 	{#if !connected}
 		<div class="flex items-center justify-center h-screen">
 			<div class="text-center">
@@ -99,6 +154,9 @@
 				<CSSRouletteWheel
 					bind:this={wheelRef}
 					onSpinComplete={handleSpinComplete}
+					onSpinStart={handleSpinStart}
+					onNoMoreBets={handleNoMoreBets}
+					onResultRevealed={handleResultRevealed}
 					{spinDuration}
 					overrideResult={overrideNumber}
 				/>
@@ -263,5 +321,67 @@
 			0 4px 12px rgba(0, 0, 0, 0.4),
 			inset 0 -3px 6px rgba(0, 0, 0, 0.3),
 			inset 0 3px 6px rgba(255, 255, 255, 0.1);
+	}
+
+	/* Audio Unlock Overlay */
+	.audio-unlock-overlay {
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		z-index: 1000;
+	}
+
+	.audio-unlock-btn {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 12px 24px;
+		font-family: 'Oswald', sans-serif;
+		font-size: 16px;
+		font-weight: 600;
+		color: #fff;
+		background: linear-gradient(135deg, #d4af37 0%, #b8962e 50%, #a68528 100%);
+		border: 2px solid #e5c158;
+		border-radius: 8px;
+		cursor: pointer;
+		box-shadow:
+			0 4px 12px rgba(212, 175, 55, 0.4),
+			inset 0 1px 0 rgba(255, 255, 255, 0.3);
+		transition: all 0.2s ease;
+	}
+
+	.audio-unlock-btn:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow:
+			0 6px 16px rgba(212, 175, 55, 0.5),
+			inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	}
+
+	.audio-unlock-btn:active:not(:disabled) {
+		transform: translateY(0);
+	}
+
+	.audio-unlock-btn:disabled {
+		opacity: 0.8;
+		cursor: wait;
+	}
+
+	.sound-icon {
+		font-size: 20px;
+	}
+
+	.loading-spinner {
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-top-color: #fff;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

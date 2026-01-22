@@ -2,10 +2,16 @@
 	// Props
 	let {
 		onSpinComplete,
+		onSpinStart,
+		onNoMoreBets,
+		onResultRevealed,
 		spinDuration = 9000,
 		overrideResult = null,
 	}: {
 		onSpinComplete?: (result: number) => void;
+		onSpinStart?: (duration: number) => void;
+		onNoMoreBets?: () => void;
+		onResultRevealed?: (result: number) => void;
 		spinDuration?: number;
 		overrideResult?: number | null;
 	} = $props();
@@ -48,9 +54,13 @@
 		// Set spin target (this triggers the CSS transition via data-spinto)
 		spinTo = randomNumber;
 
+		// Notify parent that spin started (for audio)
+		onSpinStart?.(spinDuration);
+
 		// Show "No More Bets" at half the timer
 		setTimeout(() => {
 			maskText = 'No More Bets';
+			onNoMoreBets?.();
 		}, spinDuration / 2);
 
 		// Reset mask text slightly after spin completes
@@ -67,7 +77,10 @@
 			resultColor = color;
 			isRevealed = true;
 
-			// Notify parent
+			// Notify parent of result reveal (for audio announcement)
+			onResultRevealed?.(randomNumber);
+
+			// Notify parent of spin complete
 			onSpinComplete?.(randomNumber);
 		}, spinDuration);
 	}
@@ -237,6 +250,8 @@
 		width: 374px;
 		margin: 0 auto;
 		font-family: 'Roboto', sans-serif;
+		background: url('/img/wheel-ring.png') no-repeat center center;
+		padding: 150px;
 	}
 
 	/* Wheel plate */
