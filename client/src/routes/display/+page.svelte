@@ -113,7 +113,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 </svelte:head>
 
-<div class="display-page min-h-screen bg-gradient-to-b from-gray-900 via-green-950 to-gray-900 text-white flex flex-col items-center justify-center p-8">
+<div class="display-page min-h-screen bg-gradient-to-b from-green-900 via-green-700 to-green-900 text-white flex flex-col items-center justify-center p-8">
 	<!-- Audio Unlock Overlay -->
 	{#if connected && !audioUnlocked && !$sessionEnded.ended}
 		<div class="audio-unlock-overlay">
@@ -163,7 +163,7 @@
 			</div>
 
 			<!-- Stats Panel -->
-			<div class="stats-panel w-80">
+			<div class="stats-panel w-80 z-10">
 				<!-- Last Result -->
 				<div class="last-result-box mb-8 p-6 rounded-xl text-center">
 					<h2 class="text-2xl font-oswald font-bold mb-4 tracking-wide">LAST RESULT:</h2>

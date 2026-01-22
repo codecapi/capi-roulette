@@ -1,4 +1,6 @@
 <script lang="ts">
+  import WebglOverlay from "./WebglOverlay.svelte";
+
 	// Props
 	let {
 		onSpinComplete,
@@ -95,7 +97,10 @@
 	}
 </script>
 
+<div class="wheel-container">
+<WebglOverlay isSpinning={isSpinning} isRevealed={isRevealed} resultColor={resultColor} />
 <div class="main">
+	<div class="background-image"/>
 	<div class="plate" id="plate">
 		<ul class="inner" class:rest={isRest} data-spinto={spinTo}>
 			{#each WHEEL_NUMBERS as number}
@@ -107,20 +112,45 @@
 				</li>
 			{/each}
 		</ul>
-		<div class="data" class:reveal={isRevealed}>
-			<div class="data-inner">
-				<div class="mask">{maskText}</div>
-				<div class="result" style:background-color={resultColor}>
-					<div class="result-number">{resultNumber}</div>
-					<div class="result-color">{resultColor}</div>
-				</div>
-			</div>
+		<div class='inner-overlay'/>
+		
+	</div>
+</div>
+<div class="data" class:reveal={isRevealed}>
+	<div class="data-inner">
+		<div class="mask">{maskText}</div>
+		<div class="result" style:background-color={resultColor}>
+			<div class="result-number">{resultNumber}</div>
+			<div class="result-color">{resultColor}</div>
+		</div>
 		</div>
 	</div>
 </div>
 
 <style>
 	/* Reset styles for our component */
+
+	.wheel-container {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	.inner-overlay {
+		--wheel-width: 374px;
+		--offset: -200px;
+		position: absolute;
+		left: calc(50% - (var(--wheel-width) + var(--offset)) / 2);
+		top: calc((50% - (var(--wheel-width) + var(--offset)) / 2));
+		width: calc(var(--wheel-width) + var(--offset));
+		height: calc(var(--wheel-width) + var(--offset));
+		background-image: url('/img/wheel-center.png');
+		background-position: center center;
+		background-size: cover;
+		z-index: 100;
+		/* transform: rotateY(180deg); */
+	}
+
 	.main * {
 		margin: 0;
 		padding: 0;
@@ -247,11 +277,24 @@
 
 	/* Main container */
 	.main {
-		width: 374px;
+		/* width: 374px; */
 		margin: 0 auto;
 		font-family: 'Roboto', sans-serif;
-		background: url('/img/wheel-ring.png') no-repeat center center;
 		padding: 150px;
+		position: relative;
+	}
+
+	.background-image {
+		--wheel-width: 374px;
+		--offset: 130px;
+		position: absolute;
+		left: calc((50% - (var(--wheel-width) + var(--offset)) / 2) - 6px);
+		top: calc((50% - (var(--wheel-width) + var(--offset)) / 2) - 7px);
+		width: calc(var(--wheel-width) + var(--offset) + 12px);
+		height: calc(var(--wheel-width) + var(--offset));
+		background-image: url('/img/roulette.png');
+		background-position: center center;
+		background-size: cover;
 	}
 
 	/* Wheel plate */
@@ -279,10 +322,10 @@
 		right: -6px;
 		bottom: -6px;
 		left: -6px;
-		border: 6px solid gold;
+		border: 6px solid silver;
 		box-shadow:
-			inset 0px 0px 0px 2px #b39700,
-			0px 0px 0px 2px #ffeb80;
+			inset 0px 0px 0px 2px silver,
+			0px 0px 0px 2px silver;
 	}
 
 	/* Inner dark circle */
@@ -378,7 +421,7 @@
 		content: '';
 		color: #fff;
 		font-size: 60px;
-		z-index: 5;
+		z-index: 101;
 		border-radius: 0;
 	}
 
@@ -594,29 +637,23 @@
 
 	/* Data/result display container */
 	.data {
-		display: block;
-		position: absolute;
-		top: 30%;
-		right: 30%;
-		bottom: 30%;
-		left: 30%;
+		position: relative;
 		border-radius: 50%;
-		animation: rotate 48s reverse linear infinite;
-		perspective: 2000px;
+		width: 100%;
+		/* animation: rotate 48s reverse linear infinite; */
+		/* perspective: 2000px; */
 		z-index: 100;
 	}
 
 	.data .data-inner {
 		position: relative;
-		width: 100%;
-		height: 100%;
 		text-align: center;
-		transition: transform 0.72s;
-		transform-style: preserve-3d;
+		/* transition: transform 0.72s; */
+		/* transform-style: preserve-3d; */
 	}
 
 	.data.reveal .data-inner {
-		transform: rotateY(180deg);
+		/* transform: rotateY(180deg); */
 	}
 
 	.data .mask,
@@ -628,8 +665,9 @@
 		position: absolute;
 		backface-visibility: hidden;
 		border-radius: 50%;
-		overflow: hidden;
 		display: inline-block;
+		width: 150px;
+		height: 150px;
 	}
 
 	.data .mask {
@@ -638,14 +676,30 @@
 		margin: auto;
 		line-height: 1.4;
 		padding-top: 36px;
+		opacity: 1;
+		transition: opacity 0.5s ease-in-out;
+	}
+
+	.data.reveal .mask {
+		opacity: 0;
+		visibility: hidden;
 	}
 
 	.data .result {
+		left: 39%;
 		background-color: green;
 		color: white;
-		transform: rotateY(180deg);
+		/* transform: rotateY(180deg); */
 		align-items: center;
 		color: #fff;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 0.5s ease-in-out;
+	}
+
+	.data.reveal .result {
+		opacity: 1;
+		visibility: visible;
 	}
 
 	.data .result-number {
