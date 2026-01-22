@@ -188,7 +188,7 @@
 				<div class="numbers-grid grid grid-cols-2 gap-4">
 					<!-- Hot Numbers -->
 					<div class="hot-numbers-box p-4 rounded-xl">
-						<h3 class="text-lg font-oswald font-bold text-center mb-4 text-red-300 tracking-wide">HOT NUMBERS</h3>
+						<h3 class="text-lg font-oswald font-bold text-center mb-4 text-red-300 tracking-wide whitespace-nowrap">HOT NUMBERS</h3>
 						<div class="flex flex-col items-center gap-3">
 							{#each $gameState.hotNumbers as num}
 								{@const color = getNumberColor(num)}
@@ -203,7 +203,7 @@
 
 					<!-- Cold Numbers -->
 					<div class="cold-numbers-box p-4 rounded-xl">
-						<h3 class="text-lg font-oswald font-bold text-center mb-4 text-blue-300 tracking-wide">COLD NUMBERS</h3>
+						<h3 class="text-lg font-oswald font-bold text-center mb-4 text-blue-300 tracking-wide whitespace-nowrap">COLD NUMBERS</h3>
 						<div class="flex flex-col items-center gap-3">
 							{#each $gameState.coldNumbers as num}
 								{@const color = getNumberColor(num)}

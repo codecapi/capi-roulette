@@ -97,38 +97,44 @@
 	}
 </script>
 
-<div class="wheel-container">
-<WebglOverlay isSpinning={isSpinning} isRevealed={isRevealed} resultColor={resultColor} />
-<div class="main">
-	<div class="background-image"/>
-	<div class="plate" id="plate">
-		<ul class="inner" class:rest={isRest} data-spinto={spinTo}>
-			{#each WHEEL_NUMBERS as number}
-				<li class="number">
-					<label>
-						<input type="radio" name="pit" value={number} />
-						<span class="pit">{number}</span>
-					</label>
-				</li>
-			{/each}
-		</ul>
-		<div class='inner-overlay'/>
-		
-	</div>
-</div>
-<div class="data" class:reveal={isRevealed}>
-	<div class="data-inner">
-		<div class="mask">{maskText}</div>
-		<div class="result" style:background-color={resultColor}>
-			<div class="result-number">{resultNumber}</div>
-			<div class="result-color">{resultColor}</div>
-		</div>
-		</div>
-	</div>
-</div>
+<div class="main-container">
 
+	<div class="wheel-container">
+		<WebglOverlay isSpinning={isSpinning} isRevealed={isRevealed} resultColor={resultColor} />
+		<div class="main">
+			<div class="background-image"/>
+			<div class="plate" id="plate">
+				<ul class="inner" class:rest={isRest} data-spinto={spinTo}>
+					{#each WHEEL_NUMBERS as number}
+					<li class="number">
+						<label>
+							<input type="radio" name="pit" value={number} />
+							<span class="pit">{number}</span>
+						</label>
+					</li>
+					{/each}
+				</ul>
+				<div class='inner-overlay'/>
+				
+			</div>
+		</div>
+		<div class="data" class:reveal={isRevealed}>
+			<div class="data-inner">
+				<div class="mask">{maskText}</div>
+				<div class="result" style:background-color={resultColor}>
+					<div class="result-number">{resultNumber}</div>
+					<div class="result-color">{resultColor}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <style>
 	/* Reset styles for our component */
+
+	.main-container {
+		padding-bottom: 250px;
+	}
 
 	.wheel-container {
 		position: relative;
@@ -141,7 +147,7 @@
 		--offset: -200px;
 		position: absolute;
 		left: calc(50% - (var(--wheel-width) + var(--offset)) / 2);
-		top: calc((50% - (var(--wheel-width) + var(--offset)) / 2));
+		top: calc((50% - (var(--wheel-width) + var(--offset)) / 2) );
 		width: calc(var(--wheel-width) + var(--offset));
 		height: calc(var(--wheel-width) + var(--offset));
 		background-image: url('/img/wheel-center.png');
